@@ -151,6 +151,42 @@ With `EnvSource(prefix="APP", delimiter="__", infer_types=True)`, keys map as:
 - `APP__SERVICE__TIMEOUT=30` -> `service.timeout = 30` (int)
 - `APP__SERVICE__FEATURES__CACHE=false` -> `service.features.cache = False` (bool)
 
+## Loading: One-Call vs Explicit Sources
+
+- Quick one-call loader for folders only:
+
+  ```python
+  from simpleconf import load
+  cfg = load(layers=[Path("conf/base"), Path("conf/local")])
+  # Recursively loads .yml/.yaml/.json/.toml; later folders override earlier
+  ```
+
+- Explicit sources for full control (files, env, dict overlays, optional flags):
+
+  ```python
+  from simpleconf import ConfigManager, DirectorySource, FileSource, EnvSource, DictOverlay
+  manager = ConfigManager([
+      DirectorySource(Path("conf/base")),
+      DirectorySource(Path("conf/local")),
+      FileSource(Path("extra.json")),
+      EnvSource(prefix="APP"),
+      DictOverlay({"runtime": {"feature_flag": True}}),
+  ])
+  cfg = manager.load()
+  ```
+
+Use `load(...)` when you just need layered folders; use `ConfigManager` when you want to precisely choose and order different kinds of sources.
+
+## File Precedence and Duplicate Stems
+
+- Across sources: later sources override earlier ones.
+- Within a single folder: files are applied in lexicographic filename order.
+- If both `messaging.json` and `messaging.yml` exist in the same folder:
+  - One-call `load(...)` (LayeredConfigLoader): both are merged; later filename wins for overlapping keys (usually YAML after JSON).
+  - Explicit `DirectorySource` (ConfigManager): later filename replaces the earlier file’s subtree at that key entirely.
+
+Recommendation: avoid keeping two files with the same stem (e.g., `messaging.*`) in the same folder. Prefer a single file per logical key per layer to keep intent crystal clear.
+
 ## Project layout
 
 ```text
