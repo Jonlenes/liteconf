@@ -1,5 +1,11 @@
 # simpleconf
 
+[![PyPI version](https://img.shields.io/pypi/v/simpleconf.svg)](https://pypi.org/project/simpleconf/)
+[![Python versions](https://img.shields.io/pypi/pyversions/simpleconf.svg)](https://pypi.org/project/simpleconf/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Build](https://github.com/jonlenes/simpleconf/actions/workflows/tests.yml/badge.svg)](https://github.com/jonlenes/simpleconf/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/jonlenes/simpleconf/branch/main/graph/badge.svg)](https://codecov.io/gh/jonlenes/simpleconf)
+
 `simpleconf` is a lightweight configuration loader focused on deterministic override rules, explicit layering, and ergonomic access patterns. It embraces boring tooling (plain YAML/JSON/TOML) while solving the painful parts typical projects hit:
 
 - predictable ordering across `base/`, `local/`, environment, and runtime overrides
