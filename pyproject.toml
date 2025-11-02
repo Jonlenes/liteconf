@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simpleconf"
+version = "0.1.0"
+description = "FeatherConf: lightweight layered configuration loader with environment-aware overrides."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+  {name = "FeatherConf Authors"}
+]
+dependencies = [
+  "PyYAML>=6.0",
+  "tomli>=2.0; python_version < \"3.11\"",
+  "typing-extensions>=4.9.0"
+]
+keywords = ["configuration", "yaml", "toml", "json", "layered-config"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Utilities"
+]
+
+[project.urls]
+Homepage = "https://github.com/example/featherconf"
+Repository = "https://github.com/example/featherconf"
+Issues = "https://github.com/example/featherconf/issues"
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
