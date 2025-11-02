@@ -1,0 +1,14 @@
+transport:
+  primary: smtp
+  backup: sms
+  retries: 2
+  features:
+    digest: false
+    attachments: true
+templates:
+  welcome: emails/welcome.html
+channels:
+  email: true
+  sms: false
+limits:
+  daily: 1000

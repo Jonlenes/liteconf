@@ -1,0 +1,15 @@
+{
+  "transport": {
+    "backup": "pagerduty",
+    "retries": 6
+  },
+  "channels": {
+    "voice": true
+  },
+  "alerts": {
+    "pager": true
+  },
+  "limits": {
+    "burst": 50
+  }
+}

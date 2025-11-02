@@ -16,3 +16,8 @@ def base_dir(fixtures_dir: Path) -> Path:
 @pytest.fixture
 def local_dir(fixtures_dir: Path) -> Path:
     return fixtures_dir / "local"
+
+
+@pytest.fixture
+def prod_dir(fixtures_dir: Path) -> Path:
+    return fixtures_dir / "prod"

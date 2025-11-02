@@ -1,0 +1,9 @@
+transport:
+  primary: slack
+  features:
+    digest: true
+    emoji: ":party_parrot:"
+channels:
+  sms: true
+  push: true
+webhook: "${MESSAGING_WEBHOOK:-https://hooks.local.example/notify}"

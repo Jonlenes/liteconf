@@ -41,8 +41,8 @@ manager = ConfigManager(
 
 cfg = manager.load()
 
-print(cfg.get("notifier.channel"))
-# -> "email"
+print(cfg.get("messaging.transport.primary"))
+# -> "smtp"
 
 cfg.save("debug_config.yml")
 ```
@@ -54,41 +54,40 @@ cfg.save("debug_config.yml")
 - `${ENV_VAR:default}` interpolation inside string values
 - environment overlays with case-insensitive prefix matching
 - `ConfigView` offering `.get()` with dotted paths, `.to_dict()`, `.as_dataclass()`
-- stateless loader – creating a new manager or calling `reload()` reads from disk again
+- stateless loader: creating a new manager or calling `reload()` rereads from disk
 
 ## Project layout
 
-```
+```text
 simpleconf/
-├── pyproject.toml
-├── README.md
-├── src/
-│   └── simpleconf/
-│       ├── __init__.py
-│       ├── errors.py
-│       ├── merger.py
-│       ├── namespaces.py
-│       ├── sources.py
-│       └── manager.py
-└── tests/
-    ├── conftest.py
-    ├── fixtures/
-    │   ├── base/
-    │   │   └── notifier.yml
-    │   └── local/
-    │       └── notifier.yml
-    └── test_manager.py
-```
-
-## Development
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -e ".[dev]"
-pytest
+|-- pyproject.toml
+|-- README.md
+|-- src/
+|   \-- simpleconf/
+|       |-- __init__.py
+|       |-- core.py
+|       |-- errors.py
+|       |-- exceptions.py
+|       |-- loader.py
+|       |-- manager.py
+|       |-- merger.py
+|       |-- namespaces.py
+|       \-- sources.py
+\-- tests/
+    |-- conftest.py
+    |-- fixtures/
+    |   |-- base/
+    |   |   \-- messaging.yml
+    |   |-- local/
+    |   |   \-- messaging.yml
+    |   \-- prod/
+    |       |-- messaging.json
+    |       \-- messaging.yml
+    |-- test_loader.py
+    \-- test_manager.py
 ```
 
 ## License
 
-MIT – do anything you want, just keep the notice.
+MIT — do anything you want, just keep the notice.
+

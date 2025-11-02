@@ -1,0 +1,9 @@
+transport:
+  features:
+    digest: true
+alerts:
+  priority: high
+channels:
+  email: true
+  sms: true
+

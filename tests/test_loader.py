@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any, Dict
 
@@ -21,28 +20,27 @@ def _write_toml(path: Path, payload: str) -> None:
     path.write_text(payload, encoding="utf-8")
 
 
-def test_local_overrides_base(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_local_overrides_base(tmp_path: Path) -> None:
     base = tmp_path / "conf" / "base"
     local = tmp_path / "conf" / "local"
 
     _write_yaml(
-        base / "notifier.yml",
-        {"smtp": {"host": "smtp.base", "port": 25, "timeout": 10}},
+        base / "messaging.yml",
+        {"transport": {"primary": "smtp", "retries": 2}},
     )
     _write_yaml(
-        local / "notifier.yml",
-        {"smtp": {"host": "smtp.local"}},
+        local / "messaging.yml",
+        {"transport": {"primary": "slack"}},
     )
 
     config = load(layers=[base, local])
 
     assert isinstance(config, ConfigNode)
-    assert config.notifier.smtp.host == "smtp.local"
-    assert config.notifier.smtp.port == 25
-    assert config.get("notifier.smtp.timeout") == 10
+    assert config.messaging.transport.primary == "slack"
+    assert config.messaging.transport.retries == 2
 
 
-def test_environment_folder_is_used(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_environment_folder_is_used(tmp_path: Path) -> None:
     base = tmp_path / "conf" / "base"
     local = tmp_path / "conf" / "local"
 
@@ -59,18 +57,23 @@ def test_environment_folder_is_used(tmp_path: Path, monkeypatch: pytest.MonkeyPa
 def test_placeholders_are_expanded(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     local = tmp_path / "conf" / "local"
 
-    monkeypatch.setenv("SMTP_PASSWORD", "secret")
-    monkeypatch.delenv("SMTP_USER", raising=False)
+    monkeypatch.setenv("MESSAGING_PASSWORD", "secret")
+    monkeypatch.delenv("MESSAGING_USER", raising=False)
 
     _write_yaml(
-        local / "notifier.yml",
-        {"smtp": {"user": "${SMTP_USER:-guest}", "password": "${SMTP_PASSWORD}" }},
+        local / "messaging.yml",
+        {
+            "credentials": {
+                "user": "${MESSAGING_USER:-guest}",
+                "password": "${MESSAGING_PASSWORD}",
+            }
+        },
     )
 
     config = load(layers=[local])
 
-    assert config.notifier.smtp.user == "guest"
-    assert config.notifier.smtp.password == "secret"
+    assert config.messaging.credentials.user == "guest"
+    assert config.messaging.credentials.password == "secret"
 
 
 def test_dotted_overrides(tmp_path: Path) -> None:
@@ -97,3 +100,51 @@ def test_mixed_formats(tmp_path: Path) -> None:
     assert config.model.version == 2
     assert config.model.metrics.accuracy == 0.9
 
+
+def test_fixture_base_only_load(base_dir: Path) -> None:
+    config = load(layers=[base_dir])
+
+    assert config.messaging.transport.primary == "smtp"
+    assert config.messaging.transport.backup == "sms"
+    assert config.messaging.channels.email is True
+    assert config.messaging.channels.sms is False
+
+
+def test_fixture_base_and_local_merge(base_dir: Path, local_dir: Path,
+                                      monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("MESSAGING_WEBHOOK", "https://hooks.fixture/notify")
+    config = load(layers=[base_dir, local_dir])
+
+    assert config.messaging.transport.primary == "slack"
+    assert config.messaging.transport.backup == "sms"
+    assert config.messaging.transport.features.emoji == ":party_parrot:"
+    assert config.messaging.channels.sms is True
+    assert config.messaging.channels.push is True
+    assert config.messaging.channels.email is True
+    assert config.messaging.limits.daily == 1000
+    assert config.messaging.webhook == "https://hooks.fixture/notify"
+
+
+def test_fixture_with_prod_layer(base_dir: Path, local_dir: Path, prod_dir: Path,
+                                 monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("MESSAGING_WEBHOOK", raising=False)
+    config = load(layers=[base_dir, local_dir, prod_dir])
+
+    assert config.messaging.transport.retries == 6  # overridden by prod json
+    assert config.messaging.transport.backup == "pagerduty"
+    assert config.messaging.alerts.priority == "high"
+    assert config.messaging.alerts.pager is True
+    assert config.messaging.channels.voice is True
+    assert config.messaging.limits.daily == 1000
+    assert config.messaging.limits.burst == 50
+
+
+def test_fixture_layer_order_changes_result(base_dir: Path, local_dir: Path,
+                                            prod_dir: Path) -> None:
+    forward = load(layers=[base_dir, local_dir, prod_dir])
+    reversed_config = load(layers=[prod_dir, local_dir, base_dir])
+
+    assert forward.messaging.transport.primary == "slack"
+    assert reversed_config.messaging.transport.primary == "smtp"
+    assert forward.messaging.transport.backup == "pagerduty"
+    assert reversed_config.messaging.transport.backup == "sms"
