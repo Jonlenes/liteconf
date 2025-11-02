@@ -1,5 +1,5 @@
 """
-FeatherConf public API.
+LiteConf public API.
 """
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Callable, Iterable, Mapping, MutableMapping, Optional, Sequen
 
 from .core import ConfigNode, ensure_config_node
 from .errors import (
-    FeatherConfError,
+    LiteConfError,
     InterpolationError,
     UnsupportedFormatError,
     ValidationError,
@@ -61,7 +61,7 @@ __all__ = [
     "DictOverlay",
     "DirectorySource",
     "EnvSource",
-    "FeatherConfError",
+    "LiteConfError",
     "FileSource",
     "InterpolationError",
     "LayeredConfigLoader",

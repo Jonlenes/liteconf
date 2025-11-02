@@ -1,23 +1,23 @@
-"""Exception types for the modern featherconf API."""
+"""Exception types for the LiteConf API."""
 from __future__ import annotations
 
-from .exceptions import FeatherConfError
+from .exceptions import LiteConfError
 
 
-class UnsupportedFormatError(FeatherConfError):
+class UnsupportedFormatError(LiteConfError):
     """Raised when a configuration file format is not supported."""
 
 
-class InterpolationError(FeatherConfError):
+class InterpolationError(LiteConfError):
     """Raised when environment interpolation cannot resolve a placeholder."""
 
 
-class ValidationError(FeatherConfError):
+class ValidationError(LiteConfError):
     """Raised when a user-supplied validator fails."""
 
 
 __all__ = [
-    "FeatherConfError",
+    "LiteConfError",
     "UnsupportedFormatError",
     "InterpolationError",
     "ValidationError",

@@ -9,7 +9,7 @@ from keyword import iskeyword
 from pathlib import Path
 from typing import Any, Dict, Iterator, Optional
 
-from .exceptions import FeatherConfError
+from .exceptions import LiteConfError
 
 PLACEHOLDER_PATTERN = re.compile(r"\$\{(?P<name>[A-Z0-9_]+)(?::-(?P<fallback>[^}]*))?\}")
 
@@ -121,14 +121,14 @@ class ConfigNode(Mapping[str, Any]):
             try:
                 import yaml
             except ImportError as exc:  # pragma: no cover - dependency missing
-                raise FeatherConfError("PyYAML is required to dump YAML files") from exc
+                raise LiteConfError("PyYAML is required to dump YAML files") from exc
             with path.open("w", encoding="utf-8") as fh:
                 yaml.safe_dump(payload, fh, sort_keys=False, allow_unicode=True)
         elif suffix == "json":
             with path.open("w", encoding="utf-8") as fh:
                 json.dump(payload, fh, indent=2, ensure_ascii=False)
         else:  # pragma: no cover - user error
-            raise FeatherConfError(f"Unsupported dump format: {suffix}")
+            raise LiteConfError(f"Unsupported dump format: {suffix}")
 
     def merge_overrides(self, overrides: Mapping[str, Any]) -> "ConfigNode":
         """
@@ -156,7 +156,7 @@ def apply_overrides(target: MutableMapping[str, Any], overrides: Mapping[str, An
         if isinstance(value, Mapping):
             section = target.setdefault(key, {})
             if not isinstance(section, MutableMapping):
-                raise FeatherConfError(
+                raise LiteConfError(
                     f"Cannot override non-mapping config section '{key}' with a mapping."
                 )
             apply_overrides(section, value)
@@ -183,7 +183,7 @@ def _assign_dotted(target: MutableMapping[str, Any], dotted_key: str, value: Any
 
 def ensure_config_node(value: Any, ref: str) -> None:
     if not isinstance(value, ConfigNode):
-        raise FeatherConfError(f"Expected ConfigNode at '{ref}', got {type(value).__name__}")
+        raise LiteConfError(f"Expected ConfigNode at '{ref}', got {type(value).__name__}")
 
 
 def resolve_placeholders(data: Any, *, env_lookup: Optional[Mapping[str, str]] = None) -> Any:
@@ -206,7 +206,7 @@ def resolve_placeholders(data: Any, *, env_lookup: Optional[Mapping[str, str]] =
                 return env_lookup[name]
             if fallback is not None:
                 return fallback
-            raise FeatherConfError(f"Environment variable '{name}' is required but not set.")
+            raise LiteConfError(f"Environment variable '{name}' is required but not set.")
 
         return PLACEHOLDER_PATTERN.sub(repl, data)
     return data
@@ -219,4 +219,3 @@ def deep_merge(base: MutableMapping[str, Any], overlay: Mapping[str, Any]) -> Mu
         else:
             base[key] = copy.deepcopy(value)
     return base
-

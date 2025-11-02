@@ -1,7 +1,6 @@
-class FeatherConfError(RuntimeError):
-    """Base exception for FeatherConf errors."""
+class LiteConfError(RuntimeError):
+    """Base exception for LiteConf errors."""
 
 
-class ConfigNotFoundError(FeatherConfError):
+class ConfigNotFoundError(LiteConfError):
     """Raised when no configuration files could be located."""
-
