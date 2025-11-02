@@ -28,7 +28,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest --cov=src/liteconf --cov-report=xml
+          pytest --cov=src/simpleconf --cov-report=xml
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
